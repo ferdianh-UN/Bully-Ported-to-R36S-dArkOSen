@@ -40,6 +40,15 @@ static void check_data(void)
 // run from the binary's own folder so relative paths (assets/, savegames/, config.txt) resolve
 static void chdir_to_exe_dir(void)
 {
+    // Use the game directory supplied by the launcher.
+  // This is important when started through glibc242.
+  const char *game_dir = getenv("BULLY_GAMEDIR");
+  if (game_dir && game_dir[0])
+  {
+    if (chdir(game_dir) < 0)
+      fatal_error("Could not enter game folder\n%s", game_dir);
+    return;
+  }
   char path[PATH_MAX];
   ssize_t len = readlink("/proc/self/exe", path, sizeof(path) - 1);
   if (len <= 0)
