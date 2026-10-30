@@ -89,9 +89,14 @@ static int file_ok(const char *path)
 
 int setup_is_installed(void)
 {
-  if (access(INSTALL_MARKER, F_OK) == 0)
-    return 0; // an earlier install was interrupted
-  return file_ok(SO_NAME) && file_ok(CPP_LIB_NAME) && file_ok("assets/data_0.zip");
+  // A complete manual extraction is installed even if a stale marker remains.
+  if (file_ok(SO_NAME) && file_ok(CPP_LIB_NAME) && file_ok("assets/data_0.zip"))
+  {
+    if (access(INSTALL_MARKER, F_OK) == 0)
+      unlink(INSTALL_MARKER);
+    return 1;
+  }
+  return 0;
 }
 
 static void set_failed(const char *fmt, const char *arg)
